@@ -10,7 +10,8 @@ import UIKit
 
 class ToDoListViewController: UITableViewController {
     
-    let itemArray = ["Learning", "Coding", "Git", "Check out", "Push"]
+    var itemArray = ["Learning", "Coding", "Git", "Check out", "Push"]
+   
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -40,6 +41,38 @@ class ToDoListViewController: UITableViewController {
             tableView.cellForRow(at:  indexPath)?.accessoryType = .checkmark
         }
         tableView.deselectRow(at: indexPath, animated: true)
+    }
+    
+    
+    //MARK - Add new Items
+    @IBAction func addButtonPressed(_ sender: UIBarButtonItem) {
+        
+        var textField = UITextField()
+        let alert = UIAlertController(title: "Add new ToDo Tracker", message: "", preferredStyle: .alert)
+        let action = UIAlertAction(title: "Add Item", style: .default) { (action) in
+            //What will happen once user tap on Add Item button on UIAlert
+            print(textField.text!)
+            if textField.text == ""{
+                self.itemArray.append("New Item <NO NAME>")
+            }else{
+                self.itemArray.append(textField.text!)
+            }
+            
+            self.tableView.reloadData()
+            
+        }
+        let cancel = UIAlertAction(title: "Cancel", style: .cancel) { (action) in
+            //What will happen once user tap on Cancel button on UIAlert
+            print("Cancel Pressed")
+        }
+        
+        alert.addTextField { (alertTextField) in
+            alertTextField.placeholder = "Create new ToDo Tracker item"
+            textField = alertTextField
+        }
+        alert.addAction(action)
+        alert.addAction(cancel)
+        present(alert, animated: true, completion: nil)
     }
 }
 

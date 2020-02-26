@@ -11,10 +11,16 @@ import UIKit
 class ToDoListViewController: UITableViewController {
     
     var itemArray = ["Learning", "Coding", "Git", "Check out", "Push"]
+    let defaults = UserDefaults.standard
    
 
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        print (defaults.array(forKey: "TodoListArray") as! [String])
+        if let item = defaults.array(forKey: "TodoListArray") as? [String]{
+            itemArray = item
+        }
         
     }
 
@@ -57,6 +63,9 @@ class ToDoListViewController: UITableViewController {
             }else{
                 self.itemArray.append(textField.text!)
             }
+            // Save data into User defaults for Persistance.
+            self.defaults.set(self.itemArray, forKey: "TodoListArray")
+            
             
             self.tableView.reloadData()
             

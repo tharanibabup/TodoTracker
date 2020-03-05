@@ -14,14 +14,13 @@ class ToDoListViewController: UITableViewController {
     var itemArray = [Item]()
     let context = (UIApplication.shared.delegate as! AppDelegate).persistentContainer.viewContext
     
-    let dataFilePath = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first?.appendingPathComponent("Items.plist")
    
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        print (dataFilePath)
+        print (FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!)
         //Retrive data from plist file (Persistance store)
-       // loadItems()
+        loadItems()
         
     }
 
@@ -45,10 +44,16 @@ class ToDoListViewController: UITableViewController {
     //MARK - Table view Delegate Methods
     
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+// For updating the row status
        let item = itemArray[indexPath.row]
        item.done = !item.done
-       saveItems()
-       tableView.deselectRow(at: indexPath, animated: true)
+        
+////For Deleting the secific selected row from the permoment data store
+//        context.delete(itemArray[indexPath.row])
+//        itemArray.remove(at: indexPath.row)
+        
+        saveItems()
+        tableView.deselectRow(at: indexPath, animated: true)
     }
     
     
@@ -89,8 +94,7 @@ class ToDoListViewController: UITableViewController {
     }
     
     func saveItems(){
-        // Save data into User defaults for Persistance.
-        let encoder = PropertyListEncoder()
+        // Save data into User defaults for Persistance. - Comitting the change to permement data store
         do{
             try self.context.save()
         }catch{
@@ -100,15 +104,13 @@ class ToDoListViewController: UITableViewController {
         tableView.reloadData()
     }
     
-//    func loadItems(){
-//        if let data = try? Data(contentsOf: dataFilePath!){
-//            let decoder = PropertyListDecoder()
-//            do{
-//                itemArray = try decoder.decode([Item].self, from: data)
-//            } catch{
-//                print("Error decoding item array, \(error)")
-//            }
-//        }
-//    }
+    func loadItems(){
+        let request: NSFetchRequest<Item> = Item.fetchRequest()
+        do{
+            itemArray = try context.fetch(request)
+        }catch{
+            print ("Error  fetch data from context : \(error)")
+        }
+    }
 }
 

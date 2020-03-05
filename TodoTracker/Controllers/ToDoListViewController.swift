@@ -9,7 +9,7 @@
 import UIKit
 import CoreData
 
-class ToDoListViewController: UITableViewController {
+class ToDoListViewController: UITableViewController{
     
     var itemArray = [Item]()
     let context = (UIApplication.shared.delegate as! AppDelegate).persistentContainer.viewContext
@@ -20,6 +20,8 @@ class ToDoListViewController: UITableViewController {
         super.viewDidLoad()
         print (FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!)
         //Retrive data from plist file (Persistance store)
+        
+        
         loadItems()
         
     }
@@ -104,13 +106,46 @@ class ToDoListViewController: UITableViewController {
         tableView.reloadData()
     }
     
-    func loadItems(){
-        let request: NSFetchRequest<Item> = Item.fetchRequest()
+    func loadItems(with request:NSFetchRequest<Item> = Item.fetchRequest()){
+       
         do{
             itemArray = try context.fetch(request)
         }catch{
             print ("Error  fetch data from context : \(error)")
         }
+        tableView.reloadData()
     }
 }
 
+extension ToDoListViewController: UISearchBarDelegate{
+    
+    func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
+        prepareSeach(for: searchBar.text!)
+        
+    }
+    
+    func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
+        
+        if searchBar.text!.count == 0 {
+             loadItems()
+            DispatchQueue.main.async {
+                searchBar.resignFirstResponder()
+            }
+             
+        }else{
+            prepareSeach(for: searchBar.text!)
+        }
+        
+        
+       
+    }
+    
+    func prepareSeach(for searchingText:String){
+        let request: NSFetchRequest<Item> = Item.fetchRequest()
+        print (searchingText)
+        request.predicate = NSPredicate.init(format: "title CONTAINS[cd] %@", searchingText)
+        request.sortDescriptors = [NSSortDescriptor(key: "title", ascending: true)]
+        loadItems(with: request)
+    }
+    
+}
